@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading Video...</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    video {
+      max-width: 100%;
+      max-height: 100vh;
+      outline: none;
+    }
+    .error {
+      color: #ff5555;
+      font-size: 1.2rem;
+    }
+    .unmute-hint {
+      position: absolute;
+      top: 15px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <p id="status">Loading video...</p>
+  </div>
+
+  <script>
+    // Automatically detects your username and repo name from the site URL
+    const hostParts = window.location.hostname.split('.');
+    const GITHUB_USERNAME = hostParts[0];
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const REPO_NAME = pathParts[0];
+
+    function playVideo() {
+      // Extracts the number from URLs like /v/1, /v/42, etc.
+      const videoId = pathParts[pathParts.length - 1];
+      const num = parseInt(videoId, 10);
+
+      if (isNaN(num) || num < 1 || num > 100) {
+        document.getElementById('status').innerHTML = `<span class="error">Invalid video selection: ${videoId}</span>`;
+        return;
+      }
+
+      const videoFileName = `video${num}.mp4`;
+      
+      // Directly pulls from your live GitHub Pages site
+      const videoSrc = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/videos/${videoFileName}`;
+
+      const container = document.getElementById('container');
+      container.innerHTML = `
+        <div class="unmute-hint">🔊 Tap video to unmute</div>
+        <video id="player" controls autoplay muted playsinline>
+          <source src="${videoSrc}" type="video/mp4">
+          Your browser does not support playing this video.
+        </video>
+      `;
+
+      const player = document.getElementById('player');
+      player.play().catch(err => console.log("Autoplay note:", err));
+    }
+
+    playVideo();
+  </script>
+</body>
+</html>
